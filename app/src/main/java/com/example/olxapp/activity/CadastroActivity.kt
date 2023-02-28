@@ -1,12 +1,12 @@
 package com.example.olxapp.activity
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.view.View;
-import com.example.olxapp.databinding.ActivityMainBinding
+import com.example.olxapp.databinding.ActivityCadastroBinding
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -14,13 +14,13 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 
-class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
+class CadastroActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityCadastroBinding
     private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityCadastroBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
     }
@@ -50,13 +50,34 @@ class MainActivity : AppCompatActivity() {
                         is FirebaseAuthInvalidCredentialsException -> "Digite um email válido!"
                         is FirebaseAuthUserCollisionException -> "Essa conta já foi cadastrada!"
                         is FirebaseNetworkException -> "Sem conexão com a internet"
-                        else -> "Erro ao cadastrar usuário!"
+                        else -> {
+                            "Erro ao cadastrar usuário!"
+                        }
+
                     }
 
                     val snackbar = Snackbar.make(view,mensagemErro,Snackbar.LENGTH_SHORT)
                     snackbar.setBackgroundTint(Color.RED)
                     snackbar.show()
 
+                }
+            } else {
+                auth.signInWithEmailAndPassword(email,senha).addOnCompleteListener { login ->
+
+                    if(login.isSuccessful){
+                        val snackbar = Snackbar.make(view,"Logado com Sucesso!",Snackbar.LENGTH_SHORT)
+                        snackbar.setBackgroundTint(Color.BLUE)
+                        snackbar.show()
+
+                        startActivity(Intent( this, AnunciosActivity::class.java))
+
+                        binding.editCadastroEmail.setText("")
+                        binding.editCadastroSenha.setText("")
+                    } else {
+                        val snackbar = Snackbar.make(view,"Error ao fazer o login!",Snackbar.LENGTH_SHORT)
+                        snackbar.setBackgroundTint(Color.RED)
+                        snackbar.show()
+                    }
                 }
             }
         } else {
